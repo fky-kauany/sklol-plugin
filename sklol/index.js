@@ -3548,7 +3548,7 @@ function openSettingsPanel(doc, host, api = localSettingsApi, {
       side = `<div class="sklol-set-working">${spinner2}</div>`;
     } else if (pluginPhase === "updating") {
       hint = latest ? t("settings.plugin.updatingTo", { commit: shortSha(latest.sha) }) : t("settings.plugin.updating");
-      side = `<div class="sklol-set-working">${spinner2}${t("settings.plugin.updating")}</div>`;
+      side = `<div class="sklol-set-working" role="status" aria-label="${esc(t("settings.plugin.updating"))}">${spinner2}</div>`;
     } else if (pluginPhase === "reloading") {
       hint = t("settings.plugin.reloading", {
         commit: shortSha(pluginStatus?.installed ?? "")
