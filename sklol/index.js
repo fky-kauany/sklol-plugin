@@ -203,6 +203,36 @@ function parseModDetails(input) {
   };
 }
 
+// ../shared/src/plugin.ts
+/*!
+ * A atualização do plugin do Pengu (o próprio SkLoL dentro do client), pelo modal de
+ * configurações da loja. O plugin publicado mora no repositório PLUGIN_REPO, com os arquivos do
+ * build (`index.js`, `style.css`, `assets/`) na raiz. A versão é o commit: o LOCAL compara o
+ * último commit da branch principal com o que instalou (guardado no `version.json` da pasta do
+ * plugin) e, pra atualizar, baixa o código daquele commit e troca a pasta inteira.
+ *
+ * Rota do LOCAL: GET /plugin diz o instalado e o último; POST /plugin instala o último e devolve
+ * o mesmo formato, já atualizado.
+ */
+var COMMIT_SHA = /^[0-9a-f]{40}$/;
+var pluginOutdated = ({ installed: installed4, latest }) => latest !== null && latest.sha !== installed4;
+function parsePluginStatus(input) {
+  const s = input ?? {};
+  const installed4 = s.installed;
+  if (installed4 !== null && (typeof installed4 !== "string" || !COMMIT_SHA.test(installed4))) {
+    throw new Error("commit instalado inv\xE1lido");
+  }
+  let latest = null;
+  if (s.latest !== null) {
+    const l = s.latest ?? {};
+    if (typeof l.sha !== "string" || !COMMIT_SHA.test(l.sha) || typeof l.message !== "string" || typeof l.date !== "number") {
+      throw new Error("\xFAltimo commit inv\xE1lido");
+    }
+    latest = { sha: l.sha, message: l.message, date: l.date };
+  }
+  return { installed: installed4, latest };
+}
+
 // ../shared/src/protocol.ts
 var LOCAL_PORT = 5e4;
 
@@ -1483,7 +1513,26 @@ var en = {
   "settings.error.unavailable": "settings.json isn't available. Open SkLoL from the installed app to change these options.",
   "settings.error.local_unreachable": "SkLoL didn't respond. Make sure it's open and try again.",
   "settings.error.save": "Couldn't save. Try again.",
-  "settings.error.load": "Couldn't read the options. Update SkLoL and open this again."
+  "settings.error.load": "Couldn't read the options. Update SkLoL and open this again.",
+  "settings.section.update": "Updates",
+  "settings.plugin": "SkLoL plugin",
+  "settings.when.reload": "Reloads the client",
+  "settings.plugin.checking": "Checking for updates\u2026",
+  "settings.plugin.upToDate": "You're on the latest commit ({commit}).",
+  "settings.plugin.latest": "Up to date",
+  "settings.plugin.available": "New version available: {commit}",
+  "settings.plugin.unknown": "The installed version is unknown. The latest is {commit}.",
+  "settings.plugin.offline": "Couldn't reach GitHub right now.",
+  "settings.plugin.update": "Update",
+  "settings.plugin.check": "Check again",
+  "settings.plugin.updating": "Updating\u2026",
+  "settings.plugin.updatingTo": "Downloading {commit} from GitHub\u2026",
+  "settings.plugin.reloading": "Plugin updated to {commit}. Reloading the client\u2026",
+  "settings.plugin.error.plugin_unavailable": "Updating only works with SkLoL opened from the installed app.",
+  "settings.plugin.error.github_unreachable": "Couldn't download from GitHub. Check your connection and try again.",
+  "settings.plugin.error.bad_archive": "The plugin repository doesn't have a valid version right now. The installed plugin didn't change.",
+  "settings.plugin.error.write_failed": "Couldn't save the new plugin. The installed plugin didn't change.",
+  "settings.plugin.error.fallback": "Couldn't update the plugin. Try again."
 };
 
 // src/sklol/i18n/es.ts
@@ -1784,7 +1833,26 @@ var es = {
   "settings.error.unavailable": "El settings.json no est\xE1 disponible. Abre SkLoL desde la aplicaci\xF3n instalada para cambiar estas opciones.",
   "settings.error.local_unreachable": "SkLoL no respondi\xF3. Comprueba que est\xE9 abierto e int\xE9ntalo de nuevo.",
   "settings.error.save": "No se pudo guardar. Int\xE9ntalo de nuevo.",
-  "settings.error.load": "No se pudieron leer las opciones. Actualiza SkLoL y vuelve a abrir."
+  "settings.error.load": "No se pudieron leer las opciones. Actualiza SkLoL y vuelve a abrir.",
+  "settings.section.update": "Actualizaci\xF3n",
+  "settings.plugin": "Plugin de SkLoL",
+  "settings.when.reload": "Recarga el cliente",
+  "settings.plugin.checking": "Buscando actualizaciones\u2026",
+  "settings.plugin.upToDate": "Tienes el \xFAltimo commit ({commit}).",
+  "settings.plugin.latest": "Al d\xEDa",
+  "settings.plugin.available": "Nueva versi\xF3n disponible: {commit}",
+  "settings.plugin.unknown": "No s\xE9 qu\xE9 versi\xF3n est\xE1 instalada. La \xFAltima es {commit}.",
+  "settings.plugin.offline": "No pude conectar con GitHub ahora.",
+  "settings.plugin.update": "Actualizar",
+  "settings.plugin.check": "Buscar de nuevo",
+  "settings.plugin.updating": "Actualizando\u2026",
+  "settings.plugin.updatingTo": "Descargando {commit} de GitHub\u2026",
+  "settings.plugin.reloading": "Plugin actualizado a {commit}. Recargando el cliente\u2026",
+  "settings.plugin.error.plugin_unavailable": "La actualizaci\xF3n solo funciona con SkLoL abierto desde la aplicaci\xF3n instalada.",
+  "settings.plugin.error.github_unreachable": "No pude descargar de GitHub. Revisa tu conexi\xF3n e int\xE9ntalo de nuevo.",
+  "settings.plugin.error.bad_archive": "El repositorio del plugin no tiene una versi\xF3n v\xE1lida ahora. El plugin instalado no cambi\xF3.",
+  "settings.plugin.error.write_failed": "No pude guardar el plugin nuevo. El plugin instalado no cambi\xF3.",
+  "settings.plugin.error.fallback": "No pude actualizar el plugin. Int\xE9ntalo de nuevo."
 };
 
 // src/sklol/i18n/pt.ts
@@ -2085,7 +2153,26 @@ var pt = {
   "settings.error.unavailable": "O settings.json n\xE3o est\xE1 dispon\xEDvel. Abra o SkLoL pelo aplicativo instalado para mudar estas op\xE7\xF5es.",
   "settings.error.local_unreachable": "O SkLoL n\xE3o respondeu. Confira se ele est\xE1 aberto e tente de novo.",
   "settings.error.save": "N\xE3o consegui salvar. Tente de novo.",
-  "settings.error.load": "N\xE3o consegui ler as op\xE7\xF5es. Atualize o SkLoL e abra de novo."
+  "settings.error.load": "N\xE3o consegui ler as op\xE7\xF5es. Atualize o SkLoL e abra de novo.",
+  "settings.section.update": "Atualiza\xE7\xE3o",
+  "settings.plugin": "Plugin do SkLoL",
+  "settings.when.reload": "Recarrega o client",
+  "settings.plugin.checking": "Procurando atualiza\xE7\xF5es\u2026",
+  "settings.plugin.upToDate": "Voc\xEA est\xE1 no \xFAltimo commit ({commit}).",
+  "settings.plugin.latest": "Em dia",
+  "settings.plugin.available": "Nova vers\xE3o dispon\xEDvel: {commit}",
+  "settings.plugin.unknown": "N\xE3o sei qual vers\xE3o est\xE1 instalada. A \xFAltima \xE9 {commit}.",
+  "settings.plugin.offline": "N\xE3o consegui falar com o GitHub agora.",
+  "settings.plugin.update": "Atualizar",
+  "settings.plugin.check": "Procurar de novo",
+  "settings.plugin.updating": "Atualizando\u2026",
+  "settings.plugin.updatingTo": "Baixando {commit} do GitHub\u2026",
+  "settings.plugin.reloading": "Plugin atualizado para {commit}. Recarregando o client\u2026",
+  "settings.plugin.error.plugin_unavailable": "A atualiza\xE7\xE3o s\xF3 funciona com o SkLoL aberto pelo aplicativo instalado.",
+  "settings.plugin.error.github_unreachable": "N\xE3o consegui baixar do GitHub. Confira a internet e tente de novo.",
+  "settings.plugin.error.bad_archive": "O reposit\xF3rio do plugin n\xE3o tem uma vers\xE3o v\xE1lida agora. O plugin instalado n\xE3o mudou.",
+  "settings.plugin.error.write_failed": "N\xE3o consegui gravar o plugin novo. O plugin instalado n\xE3o mudou.",
+  "settings.plugin.error.fallback": "N\xE3o consegui atualizar o plugin. Tente de novo."
 };
 
 // src/sklol/i18n/index.ts
@@ -3271,6 +3358,38 @@ var localSettingsApi = {
   get: () => call2("GET"),
   set: (patch2) => call2("PUT", patch2)
 };
+var PLUGIN_UPDATE_TIMEOUT_MS = 3 * 6e4;
+var RELOAD_DELAY_MS = 1500;
+async function callPlugin(method) {
+  let response;
+  try {
+    response = await fetch(`${LOCAL_URL5}/plugin`, {
+      method,
+      cache: "no-store",
+      signal: AbortSignal.timeout(
+        method === "POST" ? PLUGIN_UPDATE_TIMEOUT_MS : TIMEOUT_MS6
+      )
+    });
+  } catch {
+    throw new SettingsApiError("local_unreachable");
+  }
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const error = payload?.error;
+    throw new SettingsApiError(
+      typeof error === "string" ? error : "bad_response"
+    );
+  }
+  try {
+    return parsePluginStatus(payload);
+  } catch {
+    throw new SettingsApiError("bad_response");
+  }
+}
+var localPluginApi = {
+  status: () => callPlugin("GET"),
+  update: () => callPlugin("POST")
+};
 var icon2 = (paths, size2 = 20, width = 1.8) => `<svg width="${size2}" height="${size2}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 var GEAR = '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
 var GEAR_ICON = icon2(GEAR, 18, 1.7);
@@ -3314,12 +3433,20 @@ var ICON2 = {
     14
   ),
   check: icon2('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 14, 2.4),
+  // A seção de atualização (a seta pra baixo) e o cartão do plugin (as setas que giram).
+  download: icon2(
+    '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+    14
+  ),
+  sync: icon2(
+    '<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20v-4h-4"/>'
+  ),
   alert: icon2(
     '<path d="M12 3 2.5 20h19z"/><path d="M12 9.5v4.5M12 17v.1"/>',
     16
   )
 };
-var SETTINGS_STYLE = `.sklol-set-open{flex:none;align-self:stretch;margin:0!important}.sklol-set-open .lol-uikit-flat-button-wrapper,.sklol-set-open .lol-uikit-flat-button-inner,.sklol-set-open .lol-uikit-flat-button{height:100%;box-sizing:border-box}.sklol-set-open,.sklol-set-open .lol-uikit-flat-button-wrapper,.sklol-set-open .lol-uikit-flat-button-inner,.sklol-set-open .lol-uikit-flat-button{min-width:0!important}.sklol-set-open .lol-uikit-flat-button{width:auto!important;min-width:30px!important;aspect-ratio:1/1;padding:0!important}.sklol-set-open .lol-uikit-flat-button-content-wrapper,.sklol-set-open .rp-button-content-wrapper{justify-content:center;padding:0!important}.sklol-set-open .rp-button-text{display:flex;align-items:center;justify-content:center}.sklol-set-open .rp-button-text svg{transition:transform .5s cubic-bezier(.2,.8,.3,1)!important}.sklol-set-open:hover .rp-button-text svg,.sklol-set-open:focus-visible .rp-button-text svg{transform:rotate(90deg)!important}.sklol-set-bottom{display:flex;align-items:center;gap:8px;margin-block:auto 40px}.sklol-set-bottom>.lol-uikit-flat-button-normal:not(.sklol-set-open){flex:1;min-width:0;margin:0!important}.sklol-set-box{width:640px;display:flex;flex-direction:column}.sklol-set-body{flex:1;min-height:0;margin-right:-14px;padding-right:14px;overflow-x:hidden;overflow-y:auto}.sklol-set-body::-webkit-scrollbar{width:6px}.sklol-set-body::-webkit-scrollbar-thumb{background:#785a28;border-radius:3px}.sklol-set-label svg{flex:none;color:#c8aa6e}.sklol-set-list{display:flex;flex-direction:column;gap:10px;margin:0 0 22px;padding:0;list-style:none}.sklol-set-card{--corner:#785a28;position:relative;display:flex;gap:14px;align-items:center;padding:12px 14px;cursor:pointer;outline:none;background:linear-gradient(90deg,rgba(30,35,40,.9),rgba(10,20,30,.9));border:1px solid #463714;transition:border-color .2s,box-shadow .2s,background .2s;animation:sklol-src-in .25s ease-out both}.sklol-set-card::before{content:"";position:absolute;inset:-1px;pointer-events:none;--arm:8px;${CORNERS}}.sklol-set-card:hover,.sklol-set-card:focus-visible{--corner:#c8aa6e;border-color:#785a28;box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 0 18px rgba(200,170,110,.06)}.sklol-set-card.on{--corner:#0ac8b9;border-color:rgba(3,151,171,.55);background:radial-gradient(70% 120% at 100% 50%,rgba(10,200,185,.08),transparent 70%),linear-gradient(90deg,rgba(20,35,42,.92),rgba(8,22,32,.92))}.sklol-set-list .sklol-set-card:nth-child(2){animation-delay:.04s}.sklol-set-card.disabled{cursor:default;opacity:.5;pointer-events:none}.sklol-set-icon{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;color:#c8aa6e;background:radial-gradient(circle,#1e2328 0%,#010a13 75%);border:1px solid #785a28;box-shadow:0 0 0 2px #010a13,0 0 0 3px #463714;transition:color .2s,border-color .2s,box-shadow .2s}.sklol-set-card.on .sklol-set-icon{color:#0ac8b9;border-color:#0397ab;box-shadow:0 0 0 2px #010a13,0 0 0 3px rgba(3,151,171,.45),0 0 12px rgba(10,200,185,.25)}.sklol-set-info{flex:1;min-width:0}.sklol-set-name{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#f0e6d2;font-family:'LoL Display','Beaufort for LOL',serif;font-size:14px;font-weight:700;letter-spacing:.04em}.sklol-set-when{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;color:#a09b8c;font-family:'LoL Body',sans-serif;font-size:10px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;border:1px solid #3c3222;background:#010a13}.sklol-set-when svg{color:#785a28}.sklol-set-hint{margin-top:4px;color:#7e7e7e;font-size:12px;line-height:1.45}.sklol-set-switch{position:relative;flex:none;width:42px;height:22px;box-sizing:border-box;border-radius:11px;background:#010a13;border:1px solid #463714;box-shadow:inset 0 1px 4px rgba(0,0,0,.6);transition:background .2s,border-color .2s,box-shadow .2s}.sklol-set-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#a09b8c,#5b5a56);box-shadow:0 1px 3px rgba(0,0,0,.6);transition:transform .22s cubic-bezier(.2,.8,.3,1.2),background .2s,box-shadow .2s}.sklol-set-card:hover .sklol-set-switch{border-color:#785a28}.sklol-set-card.on .sklol-set-switch{background:linear-gradient(90deg,rgba(3,151,171,.55),rgba(10,200,185,.35));border-color:#0ac8b9;box-shadow:inset 0 1px 4px rgba(0,0,0,.4),0 0 10px rgba(10,200,185,.35)}.sklol-set-card.on .sklol-set-switch::after{transform:translateX(20px);background:radial-gradient(circle at 35% 30%,#f0e6d2,#cdfafa);box-shadow:0 0 8px rgba(10,200,185,.7)}.sklol-set-card.saving .sklol-set-switch::after{animation:sklol-set-pulse .8s ease-in-out infinite}@keyframes sklol-set-pulse{50%{opacity:.45}}.sklol-set-foot{display:flex;align-items:center;gap:8px;padding-top:14px;color:#5b5a56;font-size:11px;border-top:1px solid transparent;border-image:linear-gradient(90deg,transparent,#463714 15%,#463714 85%,transparent) 1}.sklol-set-foot svg{color:#785a28}.sklol-set-status{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:#0ac8b9;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .25s}.sklol-set-status.show{opacity:1}.sklol-set-status.busy{color:#a09b8c}.sklol-set-loading{display:flex;align-items:center;justify-content:center;height:120px}.sklol-set-error{margin:-10px 0 18px}@media (prefers-reduced-motion:reduce){.sklol-set-card{animation:none}.sklol-set-open .rp-button-text svg,.sklol-set-switch,.sklol-set-switch::after{transition:none}}`;
+var SETTINGS_STYLE = `.sklol-set-open{flex:none;align-self:stretch;margin:0!important}.sklol-set-open .lol-uikit-flat-button-wrapper,.sklol-set-open .lol-uikit-flat-button-inner,.sklol-set-open .lol-uikit-flat-button{height:100%;box-sizing:border-box}.sklol-set-open,.sklol-set-open .lol-uikit-flat-button-wrapper,.sklol-set-open .lol-uikit-flat-button-inner,.sklol-set-open .lol-uikit-flat-button{min-width:0!important}.sklol-set-open .lol-uikit-flat-button{width:auto!important;min-width:30px!important;aspect-ratio:1/1;padding:0!important}.sklol-set-open .lol-uikit-flat-button-content-wrapper,.sklol-set-open .rp-button-content-wrapper{justify-content:center;padding:0!important}.sklol-set-open .rp-button-text{display:flex;align-items:center;justify-content:center}.sklol-set-open .rp-button-text svg{transition:transform .5s cubic-bezier(.2,.8,.3,1)!important}.sklol-set-open:hover .rp-button-text svg,.sklol-set-open:focus-visible .rp-button-text svg{transform:rotate(90deg)!important}.sklol-set-bottom{display:flex;align-items:center;gap:8px;margin-block:auto 40px}.sklol-set-bottom>.lol-uikit-flat-button-normal:not(.sklol-set-open){flex:1;min-width:0;margin:0!important}.sklol-set-box{width:640px;display:flex;flex-direction:column}.sklol-set-body{flex:1;min-height:0;margin-right:-14px;padding-right:14px;overflow-x:hidden;overflow-y:auto}.sklol-set-body::-webkit-scrollbar{width:6px}.sklol-set-body::-webkit-scrollbar-thumb{background:#785a28;border-radius:3px}.sklol-set-label svg{flex:none;color:#c8aa6e}.sklol-set-list{display:flex;flex-direction:column;gap:10px;margin:0 0 22px;padding:0;list-style:none}.sklol-set-card{--corner:#785a28;position:relative;display:flex;gap:14px;align-items:center;padding:12px 14px;cursor:pointer;outline:none;background:linear-gradient(90deg,rgba(30,35,40,.9),rgba(10,20,30,.9));border:1px solid #463714;transition:border-color .2s,box-shadow .2s,background .2s;animation:sklol-src-in .25s ease-out both}.sklol-set-card::before{content:"";position:absolute;inset:-1px;pointer-events:none;--arm:8px;${CORNERS}}.sklol-set-card:hover,.sklol-set-card:focus-visible{--corner:#c8aa6e;border-color:#785a28;box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 0 18px rgba(200,170,110,.06)}.sklol-set-card.on{--corner:#0ac8b9;border-color:rgba(3,151,171,.55);background:radial-gradient(70% 120% at 100% 50%,rgba(10,200,185,.08),transparent 70%),linear-gradient(90deg,rgba(20,35,42,.92),rgba(8,22,32,.92))}.sklol-set-list .sklol-set-card:nth-child(2){animation-delay:.04s}.sklol-set-card.disabled{cursor:default;opacity:.5;pointer-events:none}.sklol-set-icon{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;color:#c8aa6e;background:radial-gradient(circle,#1e2328 0%,#010a13 75%);border:1px solid #785a28;box-shadow:0 0 0 2px #010a13,0 0 0 3px #463714;transition:color .2s,border-color .2s,box-shadow .2s}.sklol-set-card.on .sklol-set-icon{color:#0ac8b9;border-color:#0397ab;box-shadow:0 0 0 2px #010a13,0 0 0 3px rgba(3,151,171,.45),0 0 12px rgba(10,200,185,.25)}.sklol-set-info{flex:1;min-width:0}.sklol-set-name{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#f0e6d2;font-family:'LoL Display','Beaufort for LOL',serif;font-size:14px;font-weight:700;letter-spacing:.04em}.sklol-set-when{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;color:#a09b8c;font-family:'LoL Body',sans-serif;font-size:10px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;border:1px solid #3c3222;background:#010a13}.sklol-set-when svg{color:#785a28}.sklol-set-hint{margin-top:4px;color:#7e7e7e;font-size:12px;line-height:1.45}.sklol-set-switch{position:relative;flex:none;width:42px;height:22px;box-sizing:border-box;border-radius:11px;background:#010a13;border:1px solid #463714;box-shadow:inset 0 1px 4px rgba(0,0,0,.6);transition:background .2s,border-color .2s,box-shadow .2s}.sklol-set-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#a09b8c,#5b5a56);box-shadow:0 1px 3px rgba(0,0,0,.6);transition:transform .22s cubic-bezier(.2,.8,.3,1.2),background .2s,box-shadow .2s}.sklol-set-card:hover .sklol-set-switch{border-color:#785a28}.sklol-set-card.on .sklol-set-switch{background:linear-gradient(90deg,rgba(3,151,171,.55),rgba(10,200,185,.35));border-color:#0ac8b9;box-shadow:inset 0 1px 4px rgba(0,0,0,.4),0 0 10px rgba(10,200,185,.35)}.sklol-set-card.on .sklol-set-switch::after{transform:translateX(20px);background:radial-gradient(circle at 35% 30%,#f0e6d2,#cdfafa);box-shadow:0 0 8px rgba(10,200,185,.7)}.sklol-set-card.saving .sklol-set-switch::after{animation:sklol-set-pulse .8s ease-in-out infinite}@keyframes sklol-set-pulse{50%{opacity:.45}}.sklol-set-foot{display:flex;align-items:center;gap:8px;padding-top:14px;color:#5b5a56;font-size:11px;border-top:1px solid transparent;border-image:linear-gradient(90deg,transparent,#463714 15%,#463714 85%,transparent) 1}.sklol-set-foot svg{color:#785a28}.sklol-set-status{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:#0ac8b9;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .25s}.sklol-set-status.show{opacity:1}.sklol-set-status.busy{color:#a09b8c}.sklol-set-loading{display:flex;align-items:center;justify-content:center;height:120px}.sklol-set-error{margin:-10px 0 18px}.sklol-set-card.sklol-set-plugin{cursor:default}.sklol-set-plugin .sklol-set-hint{overflow-wrap:anywhere}.sklol-set-plugin>.lol-uikit-flat-button-normal{flex:none;margin:0!important}.sklol-set-plugin .rp-button-text{display:inline-flex;align-items:center;gap:8px;letter-spacing:.08em}.sklol-set-sha{padding:0 4px;color:#cdbe91;font-family:Consolas,monospace;font-size:11px;background:#010a13;border:1px solid #3c3222}.sklol-set-latest{display:inline-flex;align-items:center;gap:6px;flex:none;color:#0ac8b9;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.sklol-set-working{display:inline-flex;align-items:center;gap:10px;flex:none;color:#a09b8c;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.sklol-set-working .sklol-set-spin{position:relative;width:22px;height:22px}.sklol-set-plugin.updating .sklol-set-icon svg{animation:sklol-set-spin 1.1s linear infinite}@keyframes sklol-set-spin{to{transform:rotate(360deg)}}.sklol-set-plugin .sklol-panel-error{margin:8px 0 0}@media (prefers-reduced-motion:reduce){.sklol-set-plugin.updating .sklol-set-icon svg{animation:none}}@media (prefers-reduced-motion:reduce){.sklol-set-card{animation:none}.sklol-set-open .rp-button-text svg,.sklol-set-switch,.sklol-set-switch::after{transition:none}}`;
 var SECTIONS = [
   {
     title: "settings.section.champSelect",
@@ -3342,6 +3469,16 @@ var SECTIONS = [
     ]
   }
 ];
+function pluginError(error) {
+  const code = error instanceof SettingsApiError ? error.message : "";
+  if (code === "local_unreachable")
+    return t("settings.error.local_unreachable");
+  return tOr(
+    `settings.plugin.error.${code}`,
+    t("settings.plugin.error.fallback")
+  );
+}
+var shortSha = (sha) => `<code class="sklol-set-sha">${esc(sha.slice(0, 7))}</code>`;
 function describe(error, fallback) {
   const code = error instanceof SettingsApiError ? error.message : "";
   if (code === "settings_unavailable") return t("settings.error.unavailable");
@@ -3349,7 +3486,11 @@ function describe(error, fallback) {
     return t("settings.error.local_unreachable");
   return t(`settings.error.${fallback}`);
 }
-function openSettingsPanel(doc, host, api = localSettingsApi) {
+function openSettingsPanel(doc, host, api = localSettingsApi, {
+  plugin = localPluginApi,
+  // O plugin roda no documento principal do client: recarregá-lo recarrega os plugins.
+  reload = () => window.location.reload()
+} = {}) {
   const panel2 = doc.createElement("div");
   panel2.className = "sklol-panel";
   let settings = null;
@@ -3359,6 +3500,10 @@ function openSettingsPanel(doc, host, api = localSettingsApi) {
   const saving = /* @__PURE__ */ new Set();
   let savedTimer;
   let justSaved = false;
+  let pluginStatus = null;
+  let pluginPhase = "checking";
+  let pluginErr = "";
+  let reloadTimer;
   panel2.innerHTML = `<div class="sklol-import-box sklol-set-box" role="dialog" aria-label="${t("settings.title")}"><div class="sklol-import-head"><div class="sklol-import-emblem">${ICON2.emblem}</div><div><h3 class="sklol-import-title">${t("settings.title")}</h3><div class="sklol-import-sub">${t("settings.sub")}</div></div><a class="sklol-import-close" href="#" role="button" aria-label="${t("common.close")}" data-action="close">${ICON2.close}</a></div><div class="sklol-set-body" data-sklol="settings-body"></div><div class="sklol-set-foot">${ICON2.file}<span>${t("settings.file")}</span><span class="sklol-set-status" data-sklol="settings-status" aria-live="polite"></span></div></div>`;
   const body = panel2.querySelector('[data-sklol="settings-body"]');
   const status = panel2.querySelector(
@@ -3383,8 +3528,81 @@ function openSettingsPanel(doc, host, api = localSettingsApi) {
       }
       const error = fromLocal && i === 1 && loadError ? `<div class="sklol-panel-error sklol-set-error">${ICON2.alert}${esc(loadError)}</div>` : "";
       return `${label}${error}<ul class="sklol-set-list">${section.rows.map(card2).join("")}</ul>`;
-    }).join("");
+    }).join("") + pluginSection();
     renderStatus();
+  }
+  function pluginSection() {
+    const label = `<div class="sklol-import-label sklol-set-label">${ICON2.download}${t("settings.section.update")}</div>`;
+    const latest = pluginStatus?.latest ?? null;
+    const outdated = pluginStatus !== null && pluginOutdated(pluginStatus);
+    const spinner2 = `<div class="sklol-set-spin"><div class="loading-spinner"></div></div>`;
+    const button = (action, text) => flatButton({
+      label: text,
+      attrs: `data-action="${action}"`,
+      content: `${action === "plugin-update" ? ICON2.download : ""}<span>${text}</span>`
+    });
+    let hint = "";
+    let side = "";
+    if (pluginPhase === "checking") {
+      hint = t("settings.plugin.checking");
+      side = `<div class="sklol-set-working">${spinner2}</div>`;
+    } else if (pluginPhase === "updating") {
+      hint = latest ? t("settings.plugin.updatingTo", { commit: shortSha(latest.sha) }) : t("settings.plugin.updating");
+      side = `<div class="sklol-set-working">${spinner2}${t("settings.plugin.updating")}</div>`;
+    } else if (pluginPhase === "reloading") {
+      hint = t("settings.plugin.reloading", {
+        commit: shortSha(pluginStatus?.installed ?? "")
+      });
+      side = `<span class="sklol-set-latest">${ICON2.check}${t("settings.plugin.latest")}</span>`;
+    } else if (!latest) {
+      hint = pluginStatus ? t("settings.plugin.offline") : "";
+      side = button("plugin-check", t("settings.plugin.check"));
+    } else if (outdated) {
+      const ago = formatAgo(latest.date);
+      const details = [
+        latest.message && esc(latest.message),
+        ago && esc(t("time.ago", { time: ago }))
+      ].filter(Boolean).join(" \xB7 ");
+      hint = `${t(
+        pluginStatus?.installed ? "settings.plugin.available" : "settings.plugin.unknown",
+        { commit: shortSha(latest.sha) }
+      )}${details ? `<br>${details}` : ""}`;
+      side = button("plugin-update", t("settings.plugin.update"));
+    } else {
+      hint = t("settings.plugin.upToDate", { commit: shortSha(latest.sha) });
+      side = `<span class="sklol-set-latest">${ICON2.check}${t("settings.plugin.latest")}</span>`;
+    }
+    const error = pluginErr ? `<div class="sklol-panel-error">${ICON2.alert}${esc(pluginErr)}</div>` : "";
+    const classes = `sklol-set-card sklol-set-plugin${outdated && pluginPhase === "idle" ? " on" : ""}${pluginPhase === "updating" ? " updating" : ""}`;
+    return `${label}<ul class="sklol-set-list"><li class="${classes}" aria-busy="${pluginPhase === "checking" || pluginPhase === "updating"}"><div class="sklol-set-icon">${ICON2.sync}</div><div class="sklol-set-info"><div class="sklol-set-name">${t("settings.plugin")}<span class="sklol-set-when">${ICON2.clock}${t("settings.when.reload")}</span></div><div class="sklol-set-hint" aria-live="polite">${hint}</div>${error}</div>${side}</li></ul>`;
+  }
+  function checkPlugin() {
+    pluginPhase = "checking";
+    pluginErr = "";
+    render();
+    plugin.status().then((status2) => {
+      pluginStatus = status2;
+    }).catch((error) => {
+      pluginErr = pluginError(error);
+    }).finally(() => {
+      pluginPhase = "idle";
+      if (!closed) render();
+    });
+  }
+  async function updatePlugin() {
+    if (pluginPhase !== "idle") return;
+    pluginPhase = "updating";
+    pluginErr = "";
+    render();
+    try {
+      pluginStatus = await plugin.update();
+      pluginPhase = "reloading";
+      if (!closed) reloadTimer = setTimeout(reload, RELOAD_DELAY_MS);
+    } catch (error) {
+      pluginErr = pluginError(error);
+      pluginPhase = "idle";
+    }
+    if (!closed) render();
   }
   function renderStatus() {
     if (!status) return;
@@ -3433,6 +3651,8 @@ function openSettingsPanel(doc, host, api = localSettingsApi) {
     if (button?.tagName === "A") event.preventDefault();
     if (action === "close") return close();
     if (action === "toggle") void toggle(button?.dataset.option);
+    if (action === "plugin-update") void updatePlugin();
+    if (action === "plugin-check") checkPlugin();
   }
   function onKey(event) {
     const e = event;
@@ -3452,6 +3672,7 @@ function openSettingsPanel(doc, host, api = localSettingsApi) {
     if (closed) return;
     closed = true;
     clearTimeout(savedTimer);
+    clearTimeout(reloadTimer);
     panel2.removeEventListener("click", onClick);
     panel2.removeEventListener("keydown", onKey);
     panel2.remove();
@@ -3461,6 +3682,7 @@ function openSettingsPanel(doc, host, api = localSettingsApi) {
   panel2.addEventListener("keydown", onKey);
   host.append(panel2);
   panel2.querySelector('[data-action="toggle"]')?.focus();
+  checkPlugin();
   api.get().then((loaded3) => {
     settings = loaded3;
   }).catch((error) => {
