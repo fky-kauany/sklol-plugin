@@ -1,0 +1,506 @@
+@charset "UTF-8";
+/* Cadeado de compra */
+.skin-purchase.ember-view {
+  display: none !important;
+}
+
+/* SPLASH ART CENTRAL */
+.uikit-background-switcher.locked:after {
+  background: linear-gradient(0deg, #010a13 0, rgba(1, 10, 19, 0) 40%) !important;
+}
+
+li.skin-selection-item {
+  /* REMOVE CADEADO INFERIOR */
+}
+li.skin-selection-item::after {
+  content: none !important;
+}
+li.skin-selection-item {
+  /* REMOVER ESCURO DA SKIN */
+}
+li.skin-selection-item div.skin-selection-thumbnail::after {
+  opacity: 0 !important;
+}
+li.skin-selection-item > div.skin-selection-thumbnail {
+  filter: grayscale(0%) !important;
+}
+li.skin-selection-item:not(.skin-carousel-offset-2) > div.skin-selection-thumbnail:hover {
+  filter: brightness(125%) !important;
+}
+li.skin-selection-item:not(.skin-carousel-offset-2) {
+  /* BORDER SELECT */
+}
+li.skin-selection-item:not(.skin-carousel-offset-2):hover {
+  background: linear-gradient(0deg, #c89b3c, #f0e6d2) !important;
+}
+li.skin-selection-item {
+  /* REMOVE BORDER ACTIVE */
+}
+li.skin-selection-item.enabled:not(:hover):not(.skin-carousel-offset-2) {
+  background: #3c3c41 !important;
+  margin-top: 5px !important;
+}
+li.skin-selection-item.enabled:not(.skin-carousel-offset-2) > div.skin-selection-thumbnail {
+  height: calc(100% - 2px) !important;
+  margin: 1px !important;
+}
+li.skin-selection-item.enabled:not(:hover) > div.skin-selection-thumbnail:before {
+  border: thin solid #1e2328 !important;
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: all 0.2s;
+}
+
+/* MODO DAS SKINS CUSTOM (a classe fica no <html>, ver markCarouselMode no skin.ts): a imagem de cada item
+   preenche o quadro, centralizada. Menos a do centro (a selecionada, skin-carousel-offset-2),
+   que fica como o client desenha. */
+.sklol-custom-mode li.skin-selection-item:not(.skin-carousel-offset-2) > div.skin-selection-thumbnail {
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+li.skin-carousel-offset-2 {
+  background: linear-gradient(0deg, #c8aa6e 0, #c89b3c 44%, #a07b32 59%, #785a28) !important;
+  cursor: default;
+  margin-top: 0px !important;
+}
+li.skin-carousel-offset-2 > div.skin-selection-thumbnail {
+  position: relative !important;
+  height: calc(100% - 4px) !important;
+  margin: 2px !important;
+}
+li.skin-carousel-offset-2 > div.skin-selection-thumbnail:before {
+  border: thin solid #1e2328 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  content: "" !important;
+  left: 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  transition: all 0.2s !important;
+}
+
+.chroma-skin-button {
+  pointer-events: none !important;
+}
+
+.sklol-flyout {
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.sklol-frame {
+  --champion-preview-hover-animation-percentage: 0%;
+  --column-height: 95px;
+  --font-display: "LoL Display", "Times New Roman", Times, Baskerville, Georgia, serif;
+  --font-body: "LoL Body", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-user-select: none;
+  pointer-events: all;
+  position: absolute;
+  overflow: visible;
+  top: 178px;
+  left: 486.5px;
+  width: 309px;
+  height: 374px;
+}
+
+.sklol-content {
+  width: 305px;
+  height: 370px;
+}
+
+.sklol-frame-wrapper {
+  --champion-preview-hover-animation-percentage: 0%;
+  --column-height: 95px;
+  --font-display: "LoL Display", "Times New Roman", Times, Baskerville, Georgia, serif;
+  --font-body: "LoL Body", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-user-select: none;
+  display: block;
+  pointer-events: all;
+  position: relative;
+  transition: 250ms all cubic-bezier(0.02, 0.85, 0.08, 0.99);
+  width: 100%;
+  height: 100%;
+}
+.sklol-frame-wrapper .sklol-border {
+  --champion-preview-hover-animation-percentage: 0%;
+  --column-height: 95px;
+  --font-display: "LoL Display", "Times New Roman", Times, Baskerville, Georgia, serif;
+  --font-body: "LoL Body", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-user-select: none;
+  pointer-events: all;
+  position: absolute;
+  box-sizing: border-box;
+  background-color: #010a13;
+  box-shadow: 0 0 0 1px rgba(1, 10, 19, 0.48);
+  transition: 250ms all cubic-bezier(0.02, 0.85, 0.08, 0.99);
+  border: 2px solid transparent;
+  border-image: linear-gradient(to top, #785a28 0, #463714 50%, #463714 100%) 1 stretch;
+  width: 100%;
+  height: 100%;
+  visibility: visible;
+}
+.sklol-frame-wrapper .sklol-border::before {
+  content: "";
+  position: absolute;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  top: -2px;
+  left: -2px;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.sklol-frame-wrapper .sklol-sub-border {
+  --champion-preview-hover-animation-percentage: 0%;
+  --column-height: 95px;
+  --font-display: "LoL Display", "Times New Roman", Times, Baskerville, Georgia, serif;
+  --font-body: "LoL Body", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-user-select: none;
+  pointer-events: all;
+  position: absolute;
+  display: flex;
+  box-sizing: border-box;
+  transition: 250ms all cubic-bezier(0.02, 0.85, 0.08, 0.99);
+  left: 8px;
+  width: calc(100% - 16px);
+  height: 0;
+  bottom: 0;
+  visibility: visible;
+}
+.sklol-frame-wrapper .sklol-sub-border::before {
+  width: calc(100% - 8px);
+  height: 0;
+  border-image-source: url(/fe/lol-uikit/images/sub-border-primary-horizontal.png);
+  border-width: 4px 4px 0 4px;
+  border-image-width: 4px 4px 0 4px;
+  border-image-slice: 4 4 0 4;
+  border-image-repeat: stretch;
+  border-style: solid;
+  content: "";
+  position: absolute;
+}
+.sklol-frame-wrapper .sklol-caret {
+  --champion-preview-hover-animation-percentage: 0%;
+  --column-height: 95px;
+  --font-display: "LoL Display", "Times New Roman", Times, Baskerville, Georgia, serif;
+  --font-body: "LoL Body", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  -webkit-user-select: none;
+  pointer-events: all;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 0;
+  bottom: 3px;
+  visibility: visible;
+  left: 0px;
+}
+
+.chroma-button.chroma-selection {
+  z-index: 1;
+}
+
+.chroma-button:not(.sklol) {
+  display: none !important;
+}
+
+/* TUTORIAL DO ARRASTO NO CARROSSEL (carousel-tutorial.ts)
+   Um mouse que aperta o botão esquerdo, desce deixando um rastro, solta, aperta de novo e sobe,
+   com um aviso cursivo ao lado. Sem fundo, e não pega clique. Fica dentro do
+   .champion-select-main-container (some junto com a tela); o JS põe left/top (centro do
+   carrossel, relativo ao container) e a variável --sklol-hint-travel (o quanto ele desce). A animação do mouse roda pra
+   sempre enquanto o desenho existe: quem tira o desenho é o JS (o carrossel sumiu, ou o jogador já
+   arrastou as vezes que bastam nesta sessão). */
+/* A página de runas é desenhada numa camada fora da árvore da champ select, e nenhum ancestral do
+   desenho cria um contexto de empilhamento: sem isto, o z-index dele competiria com a tela inteira
+   e passaria por cima das runas. Isolado, ele só fica acima das coisas da própria champ select. */
+.sklol-drag-hint-host {
+  isolation: isolate;
+}
+
+.sklol-drag-hint {
+  --sklol-hint-gold: 240, 200, 110;
+  --sklol-hint-loop: 3.8s;
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+.sklol-drag-hint .sklol-drag-hint-mouse,
+.sklol-drag-hint .sklol-drag-hint-trail {
+  animation-duration: var(--sklol-hint-loop);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.25, 1);
+}
+.sklol-drag-hint .sklol-drag-hint-mouse {
+  position: absolute;
+  left: -14px;
+  top: 0;
+  width: 28px;
+  height: 42px;
+  opacity: 0;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 6px rgba(var(--sklol-hint-gold), 0.25));
+  animation-name: sklol-hint-mouse;
+}
+.sklol-drag-hint .sklol-drag-hint-mouse svg {
+  display: block;
+  overflow: visible;
+}
+.sklol-drag-hint .sklol-drag-hint-body {
+  stroke: rgba(240, 230, 210, 0.92);
+  stroke-width: 1.5;
+}
+.sklol-drag-hint .sklol-drag-hint-lines {
+  stroke: rgba(240, 230, 210, 0.55);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.sklol-drag-hint .sklol-drag-hint-wheel {
+  fill: rgba(240, 230, 210, 0.85);
+}
+.sklol-drag-hint {
+  /* O botão esquerdo: apagado, acende enquanto está apertado. */
+}
+.sklol-drag-hint .sklol-drag-hint-left {
+  fill: rgba(var(--sklol-hint-gold), 0);
+  animation: sklol-hint-button var(--sklol-hint-loop) infinite both;
+}
+.sklol-drag-hint {
+  /* O anel que abre no botão a cada clique. */
+}
+.sklol-drag-hint .sklol-drag-hint-ripple {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid rgba(var(--sklol-hint-gold), 0.9);
+  border-radius: 50%;
+  opacity: 0;
+  animation: sklol-hint-ripple var(--sklol-hint-loop) infinite both;
+}
+.sklol-drag-hint {
+  /* O rastro: sai do centro do mouse (21px) e cobre o trajeto. Ele cresce junto com o mouse. */
+}
+.sklol-drag-hint .sklol-drag-hint-trail {
+  position: absolute;
+  left: -2px;
+  top: 21px;
+  width: 4px;
+  height: var(--sklol-hint-travel);
+  border-radius: 4px;
+  opacity: 0;
+  box-shadow: 0 0 12px rgba(var(--sklol-hint-gold), 0.6);
+}
+.sklol-drag-hint .sklol-drag-hint-trail-down {
+  transform-origin: top;
+  background: linear-gradient(to bottom, rgba(var(--sklol-hint-gold), 0), rgba(var(--sklol-hint-gold), 0.65) 45%, rgb(255, 240, 200));
+  animation-name: sklol-hint-trail-down;
+}
+.sklol-drag-hint .sklol-drag-hint-trail-up {
+  transform-origin: bottom;
+  background: linear-gradient(to top, rgba(var(--sklol-hint-gold), 0), rgba(var(--sklol-hint-gold), 0.65) 45%, rgb(255, 240, 200));
+  animation-name: sklol-hint-trail-up;
+}
+.sklol-drag-hint {
+  /* O aviso ao lado do mouse: cursivo, amarelo pastel (o tom "flavor text" do LoL), com uma
+     leve rotação de etiqueta colada. Entra uma vez (não fica piscando a cada volta do mouse) e
+     fica. */
+}
+.sklol-drag-hint .sklol-drag-hint-text {
+  position: absolute;
+  left: 26px;
+  top: -14px;
+  width: max-content;
+  max-width: 340px;
+  transform-origin: left center;
+  transform: rotate(3deg);
+  /* A mesma fonte de título que o próprio client usa (skin names, headers): já está
+     carregada na página, então não precisa empacotar nada. */
+  font-family: "LoL Display", "Beaufort for LOL Bold", Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+  color: #ffee99;
+  text-shadow: -2px -2px 0 rgba(10, 8, 4, 0.95), 2px -2px 0 rgba(10, 8, 4, 0.95), -2px 2px 0 rgba(10, 8, 4, 0.95), 2px 2px 0 rgba(10, 8, 4, 0.95), 0 3px 6px rgba(0, 0, 0, 0.7), 0 0 14px rgba(var(--sklol-hint-gold), 0.35);
+  opacity: 0;
+  animation: sklol-hint-text-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+}
+
+@keyframes sklol-hint-mouse {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  8% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  14% {
+    opacity: 1;
+    transform: translateY(0) scale(0.93);
+  }
+  38% {
+    opacity: 1;
+    transform: translateY(var(--sklol-hint-travel)) scale(0.93);
+  }
+  44% {
+    opacity: 1;
+    transform: translateY(var(--sklol-hint-travel)) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(var(--sklol-hint-travel)) scale(0.93);
+  }
+  74% {
+    opacity: 1;
+    transform: translateY(0) scale(0.93);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  92%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes sklol-hint-trail-down {
+  0%, 13% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  14% {
+    opacity: 1;
+    transform: scaleY(0);
+  }
+  38% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  46%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+@keyframes sklol-hint-trail-up {
+  0%, 49% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(0);
+  }
+  74% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  84%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+@keyframes sklol-hint-button {
+  0%, 12% {
+    fill: rgba(240, 200, 110, 0);
+  }
+  16%, 38% {
+    fill: rgba(240, 200, 110, 0.95);
+  }
+  43%, 48% {
+    fill: rgba(240, 200, 110, 0);
+  }
+  52%, 74% {
+    fill: rgba(240, 200, 110, 0.95);
+  }
+  79%, 100% {
+    fill: rgba(240, 200, 110, 0);
+  }
+}
+@keyframes sklol-hint-ripple {
+  0%, 13% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  14% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  28% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+  49% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  64%, 100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+@keyframes sklol-hint-text-in {
+  0% {
+    opacity: 0;
+    transform: rotate(3deg) translateY(4px) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(3deg) translateY(0) scale(1);
+  }
+}
+/* O BOTÃO DO DISCORD (discord-button.ts): o de reportar bug do painel social, com o nosso ícone */
+button.bug-report-button.sklol-discord {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  /* O ícone de bug do client, se vier de um pseudo-elemento */
+}
+button.bug-report-button.sklol-discord::before, button.bug-report-button.sklol-discord::after {
+  display: none !important;
+}
+button.bug-report-button.sklol-discord .sklol-discord-icon {
+  display: flex;
+  color: #ff8a1f;
+  filter: drop-shadow(0 0 3px rgba(255, 138, 31, 0.35));
+  transition: color 0.15s, filter 0.15s, transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+button.bug-report-button.sklol-discord:hover .sklol-discord-icon, button.bug-report-button.sklol-discord:focus-visible .sklol-discord-icon {
+  color: #ffab52;
+  filter: drop-shadow(0 0 7px rgba(255, 138, 31, 0.75));
+  transform: translateY(-1px) scale(1.1);
+}
+button.bug-report-button.sklol-discord:active .sklol-discord-icon {
+  transform: scale(0.94);
+  transition-duration: 0.06s;
+}
+@media (prefers-reduced-motion: reduce) {
+  button.bug-report-button.sklol-discord .sklol-discord-icon {
+    transition: none;
+  }
+}
