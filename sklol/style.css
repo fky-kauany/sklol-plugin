@@ -64,7 +64,7 @@ li.skin-selection-item.enabled:not(:hover) > div.skin-selection-thumbnail:before
 }
 
 li.skin-carousel-offset-2 {
-  background: linear-gradient(0deg, #c8aa6e 0, #c89b3c 44%, #a07b32 59%, #785a28) !important;
+  background: linear-gradient(0deg, #c8aa6e 0, #c83c3c 44%, #a03232 59%, #782828) !important;
   cursor: default;
   margin-top: 0px !important;
 }
